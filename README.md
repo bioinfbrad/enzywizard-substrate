@@ -1,5 +1,4 @@
 [![DOI](https://zenodo.org/badge/1219037701.svg)](https://doi.org/10.5281/zenodo.19710033)
-
 # EnzyWizard-Substrate
 
 EnzyWizard-Substrate is a command-line tool for processing small-molecule
