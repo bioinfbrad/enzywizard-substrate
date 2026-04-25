@@ -72,8 +72,8 @@ def is_valid_mol_h(mol_h: Chem.Mol, logger: Logger) -> bool:
 
         has_h = any(atom.GetAtomicNum() == 1 for atom in mol_h.GetAtoms())
         if not has_h:
-            logger.print("[ERROR] Input Mol(H) does not contain explicit hydrogen atoms.")
-            return False
+            logger.print("[WARNING] Input Mol(H) does not contain explicit hydrogen atoms.")
+
 
         return True
     except Exception:

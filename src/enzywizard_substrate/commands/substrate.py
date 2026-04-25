@@ -63,7 +63,7 @@ Multiple substrates are supported and should be separated by ','.
 Examples:
   - glucose
   - CCO
-  - glucose,fructose,acetate
+  - glucose,fructose
   - glucose,CCO,lactate
 
 If one input item is already a valid SMILES string, it will be recorded directly.
