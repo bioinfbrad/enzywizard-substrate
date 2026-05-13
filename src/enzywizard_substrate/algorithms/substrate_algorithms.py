@@ -2,7 +2,7 @@ from __future__ import annotations
 from ..utils.logging_utils import Logger
 from typing import Optional, List, Dict, Set,Any
 import requests
-from ..utils.substrate_utils import clean_compound_name, build_retry_session, chebi_search_exact, choose_best_chebi_smiles, pubchem_name_to_cid,pubchem_cid_to_smiles, pubchem_cid_to_synonyms, expand_synonyms_with_brackets, is_valid_smiles, get_mol_from_smiles, get_mol_h_from_mol_2d, get_fingerprint_from_mol_2d, get_minimized_mol_3d_list_from_mol_3d_list, get_mol_3d_list_from_mol_h, get_uff_energy_from_mol_3d ,get_2d_descriptor_dict_from_mol_2d
+from ..utils.substrate_utils import clean_compound_name, build_retry_session, chebi_search_exact, choose_best_chebi_smiles, pubchem_name_to_cid,pubchem_cid_to_smiles, pubchem_cid_to_synonyms, expand_synonyms_with_brackets, is_valid_smiles, get_mol_from_smiles, get_mol_h_from_mol_2d, get_fingerprint_from_mol_2d, get_minimized_mol_3d_list_from_mol_3d_list, get_mol_3d_list_from_mol_h, get_uff_energy_from_mol_3d ,get_2d_descriptor_dict_from_mol_2d, postprocess_substrate_report_to_schema
 
 
 def get_smiles_from_substrate_name(substrate_name: str, logger: Logger, session: Optional[requests.Session] = None, timeout: int = 15, max_pubchem_synonyms_to_retry_chebi: int = 20) -> str | None:
@@ -244,10 +244,12 @@ def generate_substrate_report(substrate_feature_list: List[Dict[str, Any]], logg
             new_item["structures"] = new_structures
             cleaned_list.append(new_item)
 
-        return {
+        raw_report = {
             "output_type": "enzywizard_substrate",
             "substrates": cleaned_list
         }
+
+        return postprocess_substrate_report_to_schema(raw_report, logger)
 
     except Exception:
         logger.print("[ERROR] Failed to generate substrate report.")

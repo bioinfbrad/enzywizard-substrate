@@ -1044,3 +1044,68 @@ def build_docked_mol_from_atom_info(
     except Exception:
         logger.print("[ERROR] Failed to build docked Mol.")
         return None
+
+def postprocess_substrate_report_to_schema(
+    raw_report: Dict[str, Any],
+    logger: Logger,
+) -> Dict[str, Any] | None:
+    """
+    Postprocess the raw EnzyWizard-Substrate report into the official JSON Schema field names.
+    """
+
+    if not isinstance(raw_report, dict):
+        logger.print("[ERROR] raw_report must be a dictionary.")
+        return None
+
+    try:
+        substrates = raw_report.get("substrates")
+        if not isinstance(substrates, list):
+            logger.print("[ERROR] raw_report['substrates'] must be a list.")
+            return None
+
+        schema_substrate_list: List[Dict[str, Any]] = []
+
+        for item in substrates:
+            if not isinstance(item, dict):
+                logger.print("[ERROR] Invalid substrate entry in raw report.")
+                return None
+
+            raw_structure_list = item.get("structures", [])
+            if not isinstance(raw_structure_list, list):
+                logger.print("[ERROR] Invalid structures field in raw substrate report.")
+                return None
+
+            schema_structure_list: List[Dict[str, Any]] = []
+
+            for structure_item in raw_structure_list:
+                if not isinstance(structure_item, dict):
+                    logger.print("[ERROR] Invalid structure entry in raw substrate report.")
+                    return None
+
+                schema_structure_list.append(
+                    {
+                        "substrate_structure_name": structure_item.get("structure_name", ""),
+                        "substrate_structure_energy": structure_item.get("structure_energy", ""),
+                    }
+                )
+
+            schema_substrate_list.append(
+                {
+                    "substrate_name": item.get("substrate_name", ""),
+                    "substrate_smiles": item.get("smiles", ""),
+                    "substrate_fingerprint_encoding": item.get("fingerprint", ""),
+                    "substrate_atom_count": item.get("num_atoms", ""),
+                    "substrate_molecular_weight": item.get("mol_weight", ""),
+                    "substrate_logp": item.get("logp", ""),
+                    "substrate_possible_structures": schema_structure_list,
+                }
+            )
+
+        return {
+            "report_type": raw_report.get("output_type", "enzywizard_substrate"),
+            "substrates": schema_substrate_list,
+        }
+
+    except Exception:
+        logger.print("[ERROR] Failed to postprocess substrate report to schema.")
+        return None
