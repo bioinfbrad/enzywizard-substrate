@@ -772,6 +772,8 @@ def get_mol_3d_list_from_mol_h(
         params.randomSeed = int(random_seed)
         params.pruneRmsThresh = float(prune_rms)
 
+        params.useRandomCoords = True
+
         mol_h = Chem.Mol(mol_h)
         conf_ids = AllChem.EmbedMultipleConfs(
             mol_h,
