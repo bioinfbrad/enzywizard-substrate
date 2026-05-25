@@ -66,7 +66,7 @@ def get_substrate_dict_list_from_input(substrate_names: str, logger: Logger) -> 
         return None
 
     try:
-        names = [x.strip() for x in substrate_names.split(",") if x.strip()]
+        names = [x.strip() for x in substrate_names.split(";") if x.strip()]
         if len(names) == 0:
             logger.print("[ERROR] substrate_names is empty after parsing.")
             return None

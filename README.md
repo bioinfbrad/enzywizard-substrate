@@ -18,7 +18,7 @@ substrate conformations as SDF files for downstream analysis.
 
 Example command:
 
-enzywizard-substrate -s glucose,fructose -o examples/output/
+enzywizard-substrate -s "glucose;fructose" -o examples/output/
 
 
 
@@ -27,13 +27,13 @@ enzywizard-substrate -s glucose,fructose -o examples/output/
 -s, --substrate_names
 Required.
 Input substrate names or SMILES strings.
-Multiple substrates are supported and should be separated by ','.
+Multiple substrates are supported and should be separated by ';'.
 
 Examples:
   - glucose
   - CCO
-  - glucose,fructose
-  - glucose,CCO,lactate
+  - glucose;fructose
+  - glucose;CCO;lactate
 
 If one input item is already a valid SMILES string, it will be recorded directly.
 Its internal substrate name will be automatically assigned as smiles1, smiles2, etc.
@@ -169,7 +169,7 @@ This command processes the input substrates as follows:
 
 1. Parse input substrates
    - Read the input substrate_names string.
-   - Split multiple substrates by ','.
+   - Split multiple substrates by ';'.
    - Determine whether each entry is a substrate name or a valid SMILES string.
 
 2. Resolve substrate identity

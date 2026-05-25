@@ -11,23 +11,23 @@
       "substrate_possible_structures": [
         {
           "substrate_structure_name": "glucose_1",
-          "substrate_structure_energy": 22.660247361243865
+          "substrate_structure_energy": 21.437923177173335
         },
         {
           "substrate_structure_name": "glucose_2",
-          "substrate_structure_energy": 29.45445070864203
+          "substrate_structure_energy": 29.317770361457985
         },
         {
           "substrate_structure_name": "glucose_3",
-          "substrate_structure_energy": 30.9386662759327
+          "substrate_structure_energy": 31.040909910442352
         },
         {
           "substrate_structure_name": "glucose_4",
-          "substrate_structure_energy": 31.286464011794383
+          "substrate_structure_energy": 31.40869572517022
         },
         {
           "substrate_structure_name": "glucose_5",
-          "substrate_structure_energy": 33.76141291354486
+          "substrate_structure_energy": 33.390363894104304
         }
       ]
     },
@@ -41,23 +41,23 @@
       "substrate_possible_structures": [
         {
           "substrate_structure_name": "fructose_1",
-          "substrate_structure_energy": 26.747390210477143
+          "substrate_structure_energy": 24.08356686686497
         },
         {
           "substrate_structure_name": "fructose_2",
-          "substrate_structure_energy": 29.483943546021074
+          "substrate_structure_energy": 28.14419424304737
         },
         {
           "substrate_structure_name": "fructose_3",
-          "substrate_structure_energy": 33.18910202209821
+          "substrate_structure_energy": 33.17434997115276
         },
         {
           "substrate_structure_name": "fructose_4",
-          "substrate_structure_energy": 33.23247657508366
+          "substrate_structure_energy": 36.33922133484966
         },
         {
           "substrate_structure_name": "fructose_5",
-          "substrate_structure_energy": 34.20224232352148
+          "substrate_structure_energy": 38.33651872726722
         }
       ]
     }

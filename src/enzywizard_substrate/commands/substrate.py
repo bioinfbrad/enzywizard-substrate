@@ -4,7 +4,7 @@ from ..services.substrate_service import run_substrate_service
 
 
 def add_substrate_parser(parser: ArgumentParser) -> None:
-    parser.add_argument("-s","--substrate_names",required=True,help="Input substrate names or SMILES strings. Multiple substrate names/SMILES should be separated by ','.")
+    parser.add_argument("-s","--substrate_names",required=True,help="Input substrate names or SMILES strings. Multiple substrate names/SMILES should be separated by ';'.")
     parser.add_argument("-o","--output_dir",required=True,help="Path to the output directory for saving the JSON report and generated substrate structure files in SDF format.")
     parser.add_argument("--max_synonyms",type=int,default=20,help="Maximum number of substrate synonyms retried when fetching SMILES from a substrate name (default: 20). A larger value may improve recall but will increase API requests and runtime.")
     parser.add_argument("--fp_radius",type=int,default=2,help="Radius used for Morgan fingerprint generation (default: 2). This controls the topological neighborhood size considered around each atom. Larger values capture broader local environments but may produce sparser fingerprints.")
@@ -25,4 +25,3 @@ def run_substrate(args: Namespace) -> None:
         num_confs=args.num_confs,
         prune_rms=args.prune_rms,
     )
-
