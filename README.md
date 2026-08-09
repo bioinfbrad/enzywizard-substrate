@@ -142,6 +142,30 @@ The program outputs the following files into the output directory:
        - Data type: number
        - Description: The field 'substrate_logp' indicates the calculated logP value ('LogP': https://doktormike.gitlab.io/posts/navigating-logp-logd-pka-and-logs-a-physicists-guide/) of the substrate ('substrate': https://purl.dsmz.de/schema/Substrate).
 
+     - "substrate_tpsa"
+       - Data type: number
+       - Description: The field 'substrate_tpsa' indicates the topological polar surface area ('TPSA': https://www.rdkit.org/docs/GettingStartedInPython.html#descriptor-calculation) of the substrate ('substrate': https://purl.dsmz.de/schema/Substrate) calculated by RDKit software ('RDKit': https://www.rdkit.org/docs/index.html).
+
+     - "substrate_heavy_atom_count"
+       - Data type: integer
+       - Description: The field 'substrate_heavy_atom_count' indicates the count ('count': http://purl.obolibrary.org/obo/STATO_0000047) of heavy atoms ('atom': https://goldbook.iupac.org/terms/view/A00493) in the substrate ('substrate': https://purl.dsmz.de/schema/Substrate).
+
+     - "substrate_hbond_donor_count"
+       - Data type: integer
+       - Description: The field 'substrate_hbond_donor_count' indicates the count ('count': http://purl.obolibrary.org/obo/STATO_0000047) of hydrogen bond donors ('hydrogen bond': https://goldbook.iupac.org/terms/view/H02899) in the substrate ('substrate': https://purl.dsmz.de/schema/Substrate) calculated by RDKit software ('RDKit': https://www.rdkit.org/docs/index.html).
+
+     - "substrate_hbond_acceptor_count"
+       - Data type: integer
+       - Description: The field 'substrate_hbond_acceptor_count' indicates the count ('count': http://purl.obolibrary.org/obo/STATO_0000047) of hydrogen bond acceptors ('hydrogen bond': https://goldbook.iupac.org/terms/view/H02899) in the substrate ('substrate': https://purl.dsmz.de/schema/Substrate) calculated by RDKit software ('RDKit': https://www.rdkit.org/docs/index.html).
+
+     - "substrate_rotatable_bond_count"
+       - Data type: integer
+       - Description: The field 'substrate_rotatable_bond_count' indicates the count ('count': http://purl.obolibrary.org/obo/STATO_0000047) of rotatable bonds ('bond': https://goldbook.iupac.org/terms/view/B00701) in the substrate ('substrate': https://purl.dsmz.de/schema/Substrate) calculated by RDKit software ('RDKit': https://www.rdkit.org/docs/index.html).
+
+     - "substrate_molar_refractivity"
+       - Data type: number
+       - Description: The field 'substrate_molar_refractivity' indicates the molar refractivity ('molar refractivity': https://old.iupac.org/reports/1997/6905vandewaterbeemd/glossary.html) of the substrate ('substrate': https://purl.dsmz.de/schema/Substrate) calculated by RDKit software ('RDKit': https://www.rdkit.org/docs/index.html).
+
      - "substrate_possible_structures"
        - Data type: array
        - Description: The field 'substrate_possible_structures' indicates the possible molecular structures ('molecular structure': http://edamontology.org/data_0883) generated for the substrate ('substrate': https://purl.dsmz.de/schema/Substrate).
@@ -155,6 +179,34 @@ The program outputs the following files into the output directory:
        - "substrate_structure_energy"
          - Data type: number
          - Description: The field 'substrate_structure_energy' indicates the energy ('energy': http://purl.obolibrary.org/obo/PATO_0001021) of a possible molecular structure ('molecular structure': http://edamontology.org/data_0883) generated for the substrate ('substrate': https://purl.dsmz.de/schema/Substrate).
+
+       - "substrate_structure_max_3d_diameter"
+         - Data type: number
+         - Description: The field 'substrate_structure_max_3d_diameter' indicates the maximum three-dimensional diameter ('diameter': http://purl.obolibrary.org/obo/PATO_0001334) of a possible molecular structure ('molecular structure': http://edamontology.org/data_0883) generated for the substrate ('substrate': https://purl.dsmz.de/schema/Substrate).
+
+       - "substrate_structure_mean_pairwise_atom_distance"
+         - Data type: number
+         - Description: The field 'substrate_structure_mean_pairwise_atom_distance' indicates the mean pairwise atom distance ('distance': http://purl.obolibrary.org/obo/PATO_0000040) of a possible molecular structure ('molecular structure': http://edamontology.org/data_0883) generated for the substrate ('substrate': https://purl.dsmz.de/schema/Substrate).
+
+       - "substrate_structure_std_pairwise_atom_distance"
+         - Data type: number
+         - Description: The field 'substrate_structure_std_pairwise_atom_distance' indicates the standard deviation ('standard deviation': http://purl.obolibrary.org/obo/STATO_0000237) of pairwise atom distances ('distance': http://purl.obolibrary.org/obo/PATO_0000040) of a possible molecular structure ('molecular structure': http://edamontology.org/data_0883) generated for the substrate ('substrate': https://purl.dsmz.de/schema/Substrate).
+
+       - "substrate_structure_asphericity"
+         - Data type: number
+         - Description: The field 'substrate_structure_asphericity' indicates the asphericity ('asphericity': https://www.rdkit.org/docs/source/rdkit.Chem.rdMolDescriptors.html) of a possible molecular structure ('molecular structure': http://edamontology.org/data_0883) generated for the substrate ('substrate': https://purl.dsmz.de/schema/Substrate) calculated by RDKit software ('RDKit': https://www.rdkit.org/docs/index.html).
+
+       - "substrate_structure_spherocity"
+         - Data type: number
+         - Description: The field 'substrate_structure_spherocity' indicates the spherocity index ('spherocity index': https://www.rdkit.org/docs/source/rdkit.Chem.rdMolDescriptors.html) of a possible molecular structure ('molecular structure': http://edamontology.org/data_0883) generated for the substrate ('substrate': https://purl.dsmz.de/schema/Substrate) calculated by RDKit software ('RDKit': https://www.rdkit.org/docs/index.html).
+
+       - "substrate_structure_principal_moment_ratio"
+         - Data type: number
+         - Description: The field 'substrate_structure_principal_moment_ratio' indicates the ratio of the largest to the smallest principal moments of inertia ('moment of inertia': https://goldbook.iupac.org/terms/view/M03954) of a possible molecular structure ('molecular structure': http://edamontology.org/data_0883) generated for the substrate ('substrate': https://purl.dsmz.de/schema/Substrate).
+
+       - "substrate_structure_radius_of_gyration"
+         - Data type: number
+         - Description: The field 'substrate_structure_radius_of_gyration' indicates the radius of gyration ('radius of gyration': https://goldbook.iupac.org/terms/view/R05121) of a possible molecular structure ('molecular structure': http://edamontology.org/data_0883) generated for the substrate ('substrate': https://purl.dsmz.de/schema/Substrate) calculated by RDKit software ('RDKit': https://www.rdkit.org/docs/index.html).
 
 2. Substrate structure files in SDF format
    - {substrate_structure_name}.sdf
@@ -193,6 +245,12 @@ This command processes the input substrates as follows:
        - substrate atom count
        - substrate molecular weight
        - substrate logP
+       - substrate topological polar surface area
+       - substrate heavy atom count
+       - substrate hydrogen bond donor count
+       - substrate hydrogen bond acceptor count
+       - substrate rotatable bond count
+       - substrate molar refractivity
 
 5. Add hydrogens
    - Automatically add explicit hydrogen atoms to each valid 2D molecule
@@ -205,6 +263,8 @@ This command processes the input substrates as follows:
 7. Minimize energy
    - Minimize each generated 3D conformer's energy using the UFF force field.
    - Compute conformer energy values for ranking.
+   - Compute selected 3D molecular structure descriptors for each generated
+     conformation.
 
 8. Rank and organize conformers
    - Sort valid conformers by increasing energy.

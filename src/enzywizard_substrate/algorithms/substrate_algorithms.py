@@ -2,7 +2,7 @@ from __future__ import annotations
 from ..utils.logging_utils import Logger
 from typing import Optional, List, Dict, Set,Any
 import requests
-from ..utils.substrate_utils import clean_compound_name, build_retry_session, chebi_search_exact, choose_best_chebi_smiles, pubchem_name_to_cid,pubchem_cid_to_smiles, pubchem_cid_to_synonyms, expand_synonyms_with_brackets, is_valid_smiles, get_mol_from_smiles, get_mol_h_from_mol_2d, get_fingerprint_from_mol_2d, get_minimized_mol_3d_list_from_mol_3d_list, get_mol_3d_list_from_mol_h, get_uff_energy_from_mol_3d ,get_2d_descriptor_dict_from_mol_2d, postprocess_substrate_report_to_schema
+from ..utils.substrate_utils import clean_compound_name, build_retry_session, chebi_search_exact, choose_best_chebi_smiles, pubchem_name_to_cid,pubchem_cid_to_smiles, pubchem_cid_to_synonyms, expand_synonyms_with_brackets, is_valid_smiles, get_mol_from_smiles, get_mol_h_from_mol_2d, get_fingerprint_from_mol_2d, get_minimized_mol_3d_list_from_mol_3d_list, get_mol_3d_list_from_mol_h, get_uff_energy_from_mol_3d ,get_2d_descriptor_dict_from_mol_2d, get_3d_descriptor_dict_from_mol_3d, postprocess_substrate_report_to_schema
 
 
 def get_smiles_from_substrate_name(substrate_name: str, logger: Logger, session: Optional[requests.Session] = None, timeout: int = 15, max_pubchem_synonyms_to_retry_chebi: int = 20) -> str | None:
@@ -153,6 +153,12 @@ def get_substrate_feature_list(substrate_list: List[Dict[str, str]],logger: Logg
                 "num_atoms": "",
                 "mol_weight": "",
                 "logp": "",
+                "tpsa": "",
+                "heavy_atom_count": "",
+                "hbond_donor_count": "",
+                "hbond_acceptor_count": "",
+                "rotatable_bond_count": "",
+                "molar_refractivity": "",
                 "structures": []
             }
 
@@ -175,6 +181,12 @@ def get_substrate_feature_list(substrate_list: List[Dict[str, str]],logger: Logg
                 out["num_atoms"] = desc.get("substrate_num_atoms", "")
                 out["mol_weight"] = desc.get("substrate_molecular_weight", "")
                 out["logp"] = desc.get("substrate_mol_logp", "")
+                out["tpsa"] = desc.get("substrate_tpsa", "")
+                out["heavy_atom_count"] = desc.get("substrate_num_heavy_atoms", "")
+                out["hbond_donor_count"] = desc.get("substrate_hbond_donor_count", "")
+                out["hbond_acceptor_count"] = desc.get("substrate_hbond_acceptor_count", "")
+                out["rotatable_bond_count"] = desc.get("substrate_rotatable_bond_count", "")
+                out["molar_refractivity"] = desc.get("substrate_molar_refractivity", "")
 
             mol_h = get_mol_h_from_mol_2d(mol_2d, logger)
             if mol_h is None:
@@ -195,14 +207,19 @@ def get_substrate_feature_list(substrate_list: List[Dict[str, str]],logger: Logg
 
             for i, mol_3d in enumerate(mol_3d_list, start=1):
                 energy = get_uff_energy_from_mol_3d(mol_3d, logger)
+                descriptor_3d = get_3d_descriptor_dict_from_mol_3d(mol_3d, logger)
 
                 structure_name = f"{name}_{i}"
 
-                structures.append({
+                structure_dict = {
                     "structure_name": structure_name,
                     "structure_energy": energy if energy is not None else "",
                     "structure_mol": mol_3d
-                })
+                }
+                if descriptor_3d is not None:
+                    structure_dict.update(descriptor_3d)
+
+                structures.append(structure_dict)
 
             structures_with_energy = [x for x in structures if x["structure_energy"] != ""]
             structures_without_energy = [x for x in structures if x["structure_energy"] == ""]
@@ -239,6 +256,13 @@ def generate_substrate_report(substrate_feature_list: List[Dict[str, Any]], logg
                 new_structures.append({
                     "structure_name": s.get("structure_name"),
                     "structure_energy": s.get("structure_energy"),
+                    "structure_max_3d_diameter": s.get("structure_max_3d_diameter", ""),
+                    "structure_mean_pairwise_atom_distance": s.get("structure_mean_pairwise_atom_distance", ""),
+                    "structure_std_pairwise_atom_distance": s.get("structure_std_pairwise_atom_distance", ""),
+                    "structure_asphericity": s.get("structure_asphericity", ""),
+                    "structure_spherocity": s.get("structure_spherocity", ""),
+                    "structure_principal_moment_ratio": s.get("structure_principal_moment_ratio", ""),
+                    "structure_radius_of_gyration": s.get("structure_radius_of_gyration", ""),
                 })
 
             new_item["structures"] = new_structures

@@ -8,26 +8,67 @@
       "substrate_atom_count": 12,
       "substrate_molecular_weight": 180.156,
       "substrate_logp": -3.2213999999999987,
+      "substrate_tpsa": 110.38000000000001,
+      "substrate_heavy_atom_count": 12,
+      "substrate_hbond_donor_count": 5,
+      "substrate_hbond_acceptor_count": 6,
+      "substrate_rotatable_bond_count": 1,
+      "substrate_molar_refractivity": 35.98599999999999,
       "substrate_possible_structures": [
         {
           "substrate_structure_name": "glucose_1",
-          "substrate_structure_energy": 21.437923177173335
+          "substrate_structure_energy": 21.437923177173335,
+          "substrate_structure_max_3d_diameter": 7.367674658914197,
+          "substrate_structure_mean_pairwise_atom_distance": 3.498312484716214,
+          "substrate_structure_std_pairwise_atom_distance": 1.3715648184658484,
+          "substrate_structure_asphericity": 0.21301935232741265,
+          "substrate_structure_spherocity": 0.34555843610567977,
+          "substrate_structure_principal_moment_ratio": 2.2575749766699484,
+          "substrate_structure_radius_of_gyration": 2.375366790389113
         },
         {
           "substrate_structure_name": "glucose_2",
-          "substrate_structure_energy": 29.317770361457985
+          "substrate_structure_energy": 29.317770361457985,
+          "substrate_structure_max_3d_diameter": 6.383604733275382,
+          "substrate_structure_mean_pairwise_atom_distance": 3.44490012188096,
+          "substrate_structure_std_pairwise_atom_distance": 1.2793303736275625,
+          "substrate_structure_asphericity": 0.09931398914588947,
+          "substrate_structure_spherocity": 0.5273787759922836,
+          "substrate_structure_principal_moment_ratio": 1.7546626164030905,
+          "substrate_structure_radius_of_gyration": 2.2814897252972157
         },
         {
           "substrate_structure_name": "glucose_3",
-          "substrate_structure_energy": 31.040909910442352
+          "substrate_structure_energy": 31.040909910442352,
+          "substrate_structure_max_3d_diameter": 6.516934599164899,
+          "substrate_structure_mean_pairwise_atom_distance": 3.4125994267781716,
+          "substrate_structure_std_pairwise_atom_distance": 1.2461779400953377,
+          "substrate_structure_asphericity": 0.09420291191721734,
+          "substrate_structure_spherocity": 0.5177509498922412,
+          "substrate_structure_principal_moment_ratio": 1.7325591483607523,
+          "substrate_structure_radius_of_gyration": 2.248992667528683
         },
         {
           "substrate_structure_name": "glucose_4",
-          "substrate_structure_energy": 31.40869572517022
+          "substrate_structure_energy": 31.40869572517022,
+          "substrate_structure_max_3d_diameter": 6.891553628825635,
+          "substrate_structure_mean_pairwise_atom_distance": 3.4735187839489066,
+          "substrate_structure_std_pairwise_atom_distance": 1.3403221431659234,
+          "substrate_structure_asphericity": 0.16771347959979868,
+          "substrate_structure_spherocity": 0.3015036892645875,
+          "substrate_structure_principal_moment_ratio": 1.9388555325090895,
+          "substrate_structure_radius_of_gyration": 2.316615317151226
         },
         {
           "substrate_structure_name": "glucose_5",
-          "substrate_structure_energy": 33.390363894104304
+          "substrate_structure_energy": 33.390363894104304,
+          "substrate_structure_max_3d_diameter": 6.4105123742049575,
+          "substrate_structure_mean_pairwise_atom_distance": 3.4807019095655187,
+          "substrate_structure_std_pairwise_atom_distance": 1.3316183157942587,
+          "substrate_structure_asphericity": 0.18519988637958582,
+          "substrate_structure_spherocity": 0.3939414515237193,
+          "substrate_structure_principal_moment_ratio": 2.189531539375018,
+          "substrate_structure_radius_of_gyration": 2.3467244602622226
         }
       ]
     },
@@ -38,26 +79,67 @@
       "substrate_atom_count": 12,
       "substrate_molecular_weight": 180.156,
       "substrate_logp": -3.219799999999999,
+      "substrate_tpsa": 110.38000000000001,
+      "substrate_heavy_atom_count": 12,
+      "substrate_hbond_donor_count": 5,
+      "substrate_hbond_acceptor_count": 6,
+      "substrate_rotatable_bond_count": 1,
+      "substrate_molar_refractivity": 36.00799999999999,
       "substrate_possible_structures": [
         {
           "substrate_structure_name": "fructose_1",
-          "substrate_structure_energy": 24.08356686686497
+          "substrate_structure_energy": 24.08356686686497,
+          "substrate_structure_max_3d_diameter": 6.626984104543823,
+          "substrate_structure_mean_pairwise_atom_distance": 3.419682851300256,
+          "substrate_structure_std_pairwise_atom_distance": 1.2665276623715496,
+          "substrate_structure_asphericity": 0.10196530626493863,
+          "substrate_structure_spherocity": 0.49567583489012546,
+          "substrate_structure_principal_moment_ratio": 1.7778143519561638,
+          "substrate_structure_radius_of_gyration": 2.2005446422460575
         },
         {
           "substrate_structure_name": "fructose_2",
-          "substrate_structure_energy": 28.14419424304737
+          "substrate_structure_energy": 28.14419424304737,
+          "substrate_structure_max_3d_diameter": 7.047190632154982,
+          "substrate_structure_mean_pairwise_atom_distance": 3.389171747651184,
+          "substrate_structure_std_pairwise_atom_distance": 1.2653838310824435,
+          "substrate_structure_asphericity": 0.19165793173930604,
+          "substrate_structure_spherocity": 0.4537791381744506,
+          "substrate_structure_principal_moment_ratio": 2.265238400253134,
+          "substrate_structure_radius_of_gyration": 2.245759691743465
         },
         {
           "substrate_structure_name": "fructose_3",
-          "substrate_structure_energy": 33.17434997115276
+          "substrate_structure_energy": 33.17434997115276,
+          "substrate_structure_max_3d_diameter": 6.7302562374343635,
+          "substrate_structure_mean_pairwise_atom_distance": 3.4247990768057064,
+          "substrate_structure_std_pairwise_atom_distance": 1.27029510744479,
+          "substrate_structure_asphericity": 0.14133372182202747,
+          "substrate_structure_spherocity": 0.5134841676747595,
+          "substrate_structure_principal_moment_ratio": 1.921607197686166,
+          "substrate_structure_radius_of_gyration": 2.215334522796947
         },
         {
           "substrate_structure_name": "fructose_4",
-          "substrate_structure_energy": 36.33922133484966
+          "substrate_structure_energy": 36.33922133484966,
+          "substrate_structure_max_3d_diameter": 6.6608081830744466,
+          "substrate_structure_mean_pairwise_atom_distance": 3.3445372501000086,
+          "substrate_structure_std_pairwise_atom_distance": 1.2233991942675824,
+          "substrate_structure_asphericity": 0.15486096469158456,
+          "substrate_structure_spherocity": 0.6325049011211799,
+          "substrate_structure_principal_moment_ratio": 2.0321389925258675,
+          "substrate_structure_radius_of_gyration": 2.238731770683474
         },
         {
           "substrate_structure_name": "fructose_5",
-          "substrate_structure_energy": 38.33651872726722
+          "substrate_structure_energy": 38.33651872726722,
+          "substrate_structure_max_3d_diameter": 6.165494683580442,
+          "substrate_structure_mean_pairwise_atom_distance": 3.3105104299422825,
+          "substrate_structure_std_pairwise_atom_distance": 1.1692510145412622,
+          "substrate_structure_asphericity": 0.15850649634894937,
+          "substrate_structure_spherocity": 0.5699640356361322,
+          "substrate_structure_principal_moment_ratio": 2.0815088399780657,
+          "substrate_structure_radius_of_gyration": 2.2396676955742354
         }
       ]
     }

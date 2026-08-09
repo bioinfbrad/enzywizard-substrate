@@ -696,11 +696,77 @@ def get_2d_descriptor_dict_from_mol_2d(mol_2d: Chem.Mol,logger: Logger) -> Dict[
         )
         descriptor_dict["substrate_molecular_weight"] = float(Descriptors.MolWt(mol_2d))
         descriptor_dict["substrate_mol_logp"] = float(Crippen.MolLogP(mol_2d))
+        descriptor_dict["substrate_molar_refractivity"] = float(Crippen.MolMR(mol_2d))
         descriptor_dict["substrate_tpsa"] = float(rdMolDescriptors.CalcTPSA(mol_2d))
+        descriptor_dict["substrate_hbond_donor_count"] = int(
+            rdMolDescriptors.CalcNumHBD(mol_2d)
+        )
+        descriptor_dict["substrate_hbond_acceptor_count"] = int(
+            rdMolDescriptors.CalcNumHBA(mol_2d)
+        )
+        descriptor_dict["substrate_rotatable_bond_count"] = int(
+            rdMolDescriptors.CalcNumRotatableBonds(mol_2d)
+        )
         descriptor_dict["substrate_formal_charge"] = int(Chem.GetFormalCharge(mol_2d))
         return descriptor_dict
     except Exception:
         logger.print("[ERROR] Failed to generate 2D descriptors from Mol(2D).")
+        return None
+
+def get_3d_descriptor_dict_from_mol_3d(mol_3d: Chem.Mol,logger: Logger) -> Dict[str, Any] | None:
+    if not is_valid_mol_3d(mol_3d, logger):
+        return None
+
+    try:
+        conf = mol_3d.GetConformer()
+        coords = np.array(
+            [
+                [
+                    conf.GetAtomPosition(atom_idx).x,
+                    conf.GetAtomPosition(atom_idx).y,
+                    conf.GetAtomPosition(atom_idx).z,
+                ]
+                for atom_idx in range(conf.GetNumAtoms())
+            ],
+            dtype=float,
+        )
+
+        pairwise_distances: List[float] = []
+        for i in range(len(coords)):
+            diff = coords[i + 1:] - coords[i]
+            if len(diff) > 0:
+                pairwise_distances.extend(np.linalg.norm(diff, axis=1).tolist())
+
+        if pairwise_distances:
+            distance_array = np.array(pairwise_distances, dtype=float)
+            max_3d_diameter = float(np.max(distance_array))
+            mean_pairwise_atom_distance = float(np.mean(distance_array))
+            std_pairwise_atom_distance = float(np.std(distance_array))
+        else:
+            max_3d_diameter = 0.0
+            mean_pairwise_atom_distance = 0.0
+            std_pairwise_atom_distance = 0.0
+
+        pmi1 = float(rdMolDescriptors.CalcPMI1(mol_3d))
+        pmi3 = float(rdMolDescriptors.CalcPMI3(mol_3d))
+        if pmi1 > 0:
+            principal_moment_ratio = float(pmi3 / pmi1)
+        else:
+            principal_moment_ratio = 0.0
+
+        return {
+            "structure_max_3d_diameter": max_3d_diameter,
+            "structure_mean_pairwise_atom_distance": mean_pairwise_atom_distance,
+            "structure_std_pairwise_atom_distance": std_pairwise_atom_distance,
+            "structure_asphericity": float(rdMolDescriptors.CalcAsphericity(mol_3d)),
+            "structure_spherocity": float(rdMolDescriptors.CalcSpherocityIndex(mol_3d)),
+            "structure_principal_moment_ratio": principal_moment_ratio,
+            "structure_radius_of_gyration": float(
+                rdMolDescriptors.CalcRadiusOfGyration(mol_3d)
+            ),
+        }
+    except Exception:
+        logger.print("[ERROR] Failed to generate 3D descriptors from Mol(3D).")
         return None
 
 def get_mol_h_from_mol_2d(mol_2d: Chem.Mol, logger: Logger) -> Chem.Mol | None:
@@ -1088,6 +1154,13 @@ def postprocess_substrate_report_to_schema(
                     {
                         "substrate_structure_name": structure_item.get("structure_name", ""),
                         "substrate_structure_energy": structure_item.get("structure_energy", ""),
+                        "substrate_structure_max_3d_diameter": structure_item.get("structure_max_3d_diameter", ""),
+                        "substrate_structure_mean_pairwise_atom_distance": structure_item.get("structure_mean_pairwise_atom_distance", ""),
+                        "substrate_structure_std_pairwise_atom_distance": structure_item.get("structure_std_pairwise_atom_distance", ""),
+                        "substrate_structure_asphericity": structure_item.get("structure_asphericity", ""),
+                        "substrate_structure_spherocity": structure_item.get("structure_spherocity", ""),
+                        "substrate_structure_principal_moment_ratio": structure_item.get("structure_principal_moment_ratio", ""),
+                        "substrate_structure_radius_of_gyration": structure_item.get("structure_radius_of_gyration", ""),
                     }
                 )
 
@@ -1099,6 +1172,12 @@ def postprocess_substrate_report_to_schema(
                     "substrate_atom_count": item.get("num_atoms", ""),
                     "substrate_molecular_weight": item.get("mol_weight", ""),
                     "substrate_logp": item.get("logp", ""),
+                    "substrate_tpsa": item.get("tpsa", ""),
+                    "substrate_heavy_atom_count": item.get("heavy_atom_count", ""),
+                    "substrate_hbond_donor_count": item.get("hbond_donor_count", ""),
+                    "substrate_hbond_acceptor_count": item.get("hbond_acceptor_count", ""),
+                    "substrate_rotatable_bond_count": item.get("rotatable_bond_count", ""),
+                    "substrate_molar_refractivity": item.get("molar_refractivity", ""),
                     "substrate_possible_structures": schema_structure_list,
                 }
             )
