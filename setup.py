@@ -25,8 +25,8 @@ setup(
     packages=find_packages(where="src"),
     python_requires=">=3.10",
     install_requires=[
-        "rdkit>=2026.03.1",          # core cheminformatics
-        "numpy>=1.23.5",            # numerical operations
+        "rdkit>=2026.3.1",           # core cheminformatics
+        "numpy>=1.23.5,<2",         # numerical operations
         "biopython>=1.86",          # sequence handling (used in some utilities)
         "requests>=2.33.0",         # API calls to ChEBI and PubChem
         "packaging",                # internal version handling
