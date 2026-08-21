@@ -55,7 +55,11 @@ def run_substrate_service(substrate_names: str, output_dir: str | Path, max_syno
     json_report_path = output_dir / get_optimized_filename(f"substrate_report_{suffix}.json")
     if not check_filename_length(json_report_path.stem,logger):
         return False
-    write_json_from_dict_inline_leaf_lists(report, json_report_path)
+    try:
+        write_json_from_dict_inline_leaf_lists(report, json_report_path)
+    except Exception as e:
+        logger.print(f"[ERROR] Failed to write report JSON to {json_report_path}: {e}")
+        return False
     logger.print(f"[INFO] Report JSON saved: {json_report_path}")
 
     logger.print("[INFO] Substrate processing finished")

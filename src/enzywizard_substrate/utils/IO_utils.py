@@ -78,8 +78,8 @@ def write_sdf(mol_3d: Chem.Mol, sdf_path: str | Path, logger: Logger,) -> bool:
             return False
 
         return True
-    except Exception:
-        logger.print("[ERROR] Failed to save Mol(3D) to SDF file.")
+    except Exception as e:
+        logger.print(f"[ERROR] Failed to save Mol(3D) to SDF file: {sdf_path}. Reason: {e}")
         return False
 
 
@@ -116,8 +116,8 @@ def save_substrate_structures(substrate_feature_list: List[Dict[str, Any]],outpu
 
         return True
 
-    except Exception:
-        logger.print("[ERROR] Failed to save substrate structures.")
+    except Exception as e:
+        logger.print(f"[ERROR] Failed to save substrate structures. Reason: {e}")
         return False
 
 
@@ -146,7 +146,6 @@ def load_sdf_mol_3d(sdf_path: str | Path, logger: Logger) -> Chem.Mol | None:
 
         return mol
 
-    except Exception:
-        logger.print("[ERROR] Failed to read Mol(3D) from SDF file.")
+    except Exception as e:
+        logger.print(f"[ERROR] Failed to read Mol(3D) from SDF file: {sdf_path}. Reason: {e}")
         return None
-

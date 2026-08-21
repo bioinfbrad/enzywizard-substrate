@@ -1,5 +1,6 @@
 from __future__ import annotations
 from argparse import Namespace, ArgumentParser
+import sys
 from ..services.substrate_service import run_substrate_service
 
 
@@ -16,7 +17,7 @@ def add_substrate_parser(parser: ArgumentParser) -> None:
 
 
 def run_substrate(args: Namespace) -> None:
-    run_substrate_service(
+    success = run_substrate_service(
         substrate_names=args.substrate_names,
         output_dir=args.output_dir,
         max_synonyms=args.max_synonyms,
@@ -25,3 +26,5 @@ def run_substrate(args: Namespace) -> None:
         num_confs=args.num_confs,
         prune_rms=args.prune_rms,
     )
+    if not success:
+        sys.exit(1)

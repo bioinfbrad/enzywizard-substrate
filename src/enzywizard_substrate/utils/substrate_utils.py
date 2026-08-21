@@ -289,6 +289,7 @@ def request_json(
     timeout: int = 15,
     json_body: Optional[Dict[str, Any]] = None,
     headers: Optional[Dict[str, str]] = None,
+    log_http_error: bool = True,
 ) -> Optional[Dict[str, Any]]:
     try:
         time.sleep(0.2)
@@ -319,15 +320,24 @@ def request_json(
             )
 
         if response.status_code < 200 or response.status_code >= 300:
+            if log_http_error:
+                logger.print(f"[WARNING] Request failed: {method} {url}, status_code={response.status_code}.")
             return None
 
-        data = response.json()
+        try:
+            data = response.json()
+        except Exception as e:
+            logger.print(f"[WARNING] Failed to parse JSON response: {method} {url}. Reason: {e}")
+            return None
+
         if isinstance(data, dict):
             return data
 
+        logger.print(f"[WARNING] Unexpected JSON response type: {method} {url}, type={type(data).__name__}.")
         return None
 
-    except Exception:
+    except Exception as e:
+        logger.print(f"[WARNING] Request failed: {method} {url}. Reason: {e}")
         return None
 
 
@@ -536,6 +546,7 @@ def chebi_search_exact(compound_name: str,session: requests.Session,logger: Logg
                     timeout=timeout,
                     json_body=body,
                     headers=headers,
+                    log_http_error=False,
                 )
                 if data is None:
                     continue
@@ -858,8 +869,8 @@ def get_mol_3d_list_from_mol_h(
             return None
 
         return mol_3d_list
-    except Exception:
-        logger.print("[ERROR] Failed to generate Mol(3D) list from Mol(H).")
+    except Exception as e:
+        logger.print(f"[ERROR] Failed to generate Mol(3D) list from Mol(H). Reason: {e}")
         return None
 
 def get_mmff_energy_from_mol_3d(mol_3d: Chem.Mol, logger: Logger) -> float | None:
@@ -914,12 +925,12 @@ def get_uff_energy_from_mol_3d(mol_3d: Chem.Mol, logger: Logger) -> float | None
         logger.print(f"[INFO] UFF energy calculated, conf_id={conf_id}, energy={energy:.4f}")
 
         return float(energy)
-    except Exception:
+    except Exception as e:
         try:
             conf_id = mol_3d.GetConformer().GetId()
         except Exception:
             conf_id = "unknown"
-        logger.print(f"[ERROR] Failed to calculate UFF energy from Mol(3D): conf_id={conf_id}.")
+        logger.print(f"[ERROR] Failed to calculate UFF energy from Mol(3D): conf_id={conf_id}. Reason: {e}")
         return None
 
 
@@ -969,12 +980,12 @@ def get_minimized_mol_3d_list_from_mol_3d_list(mol_3d_list: List[Chem.Mol],logge
 
                 minimized_list.append(mol_copy)
 
-            except Exception:
+            except Exception as e:
                 try:
                     conf_id = mol_3d.GetConformer().GetId()
                 except Exception:
                     conf_id = "unknown"
-                logger.print(f"[WARNING] Failed to minimize a Mol(3D): conf_id={conf_id}.")
+                logger.print(f"[WARNING] Failed to minimize a Mol(3D): conf_id={conf_id}. Reason: {e}")
                 continue
 
         if len(minimized_list) == 0:
@@ -983,8 +994,8 @@ def get_minimized_mol_3d_list_from_mol_3d_list(mol_3d_list: List[Chem.Mol],logge
 
         return minimized_list
 
-    except Exception:
-        logger.print("[ERROR] Failed to minimize Mol(3D) list.")
+    except Exception as e:
+        logger.print(f"[ERROR] Failed to minimize Mol(3D) list. Reason: {e}")
         return None
 
 def get_substrate_report_suffix_from_feature_list(substrate_feature_list: List[Dict[str, Any]],logger: Logger,) -> str | None:
@@ -1125,6 +1136,22 @@ def postprocess_substrate_report_to_schema(
         logger.print("[ERROR] raw_report must be a dictionary.")
         return None
 
+    def is_integer(value: Any) -> bool:
+        return isinstance(value, int) and not isinstance(value, bool)
+
+    def is_number(value: Any) -> bool:
+        return (
+            isinstance(value, (int, float))
+            and not isinstance(value, bool)
+            and math.isfinite(float(value))
+        )
+
+    def is_fingerprint(value: Any) -> bool:
+        return (
+            isinstance(value, list)
+            and all(is_integer(x) and x in (0, 1) for x in value)
+        )
+
     try:
         substrates = raw_report.get("substrates")
         if not isinstance(substrates, list):
@@ -1138,6 +1165,44 @@ def postprocess_substrate_report_to_schema(
                 logger.print("[ERROR] Invalid substrate entry in raw report.")
                 return None
 
+            substrate_name = item.get("substrate_name")
+            smiles = item.get("smiles")
+            if not isinstance(substrate_name, str) or not substrate_name.strip():
+                logger.print("[ERROR] Invalid substrate_name in raw report.")
+                return None
+
+            if not isinstance(smiles, str) or not smiles.strip():
+                logger.print(f"[ERROR] Invalid SMILES in raw report for substrate: {substrate_name}")
+                return None
+
+            fingerprint = item.get("fingerprint")
+            if not is_fingerprint(fingerprint):
+                logger.print(f"[ERROR] Invalid fingerprint in raw report for substrate: {substrate_name}")
+                return None
+
+            integer_field_list = [
+                "num_atoms",
+                "heavy_atom_count",
+                "hbond_donor_count",
+                "hbond_acceptor_count",
+                "rotatable_bond_count",
+            ]
+            for field_name in integer_field_list:
+                if not is_integer(item.get(field_name)):
+                    logger.print(f"[ERROR] Invalid substrate integer field '{field_name}' for substrate: {substrate_name}")
+                    return None
+
+            number_field_list = [
+                "mol_weight",
+                "logp",
+                "tpsa",
+                "molar_refractivity",
+            ]
+            for field_name in number_field_list:
+                if not is_number(item.get(field_name)):
+                    logger.print(f"[ERROR] Invalid substrate numeric field '{field_name}' for substrate: {substrate_name}")
+                    return None
+
             raw_structure_list = item.get("structures", [])
             if not isinstance(raw_structure_list, list):
                 logger.print("[ERROR] Invalid structures field in raw substrate report.")
@@ -1150,34 +1215,54 @@ def postprocess_substrate_report_to_schema(
                     logger.print("[ERROR] Invalid structure entry in raw substrate report.")
                     return None
 
+                structure_name = structure_item.get("structure_name")
+                if not isinstance(structure_name, str) or not structure_name.strip():
+                    logger.print(f"[ERROR] Invalid structure_name in raw report for substrate: {substrate_name}")
+                    return None
+
+                structure_number_field_list = [
+                    "structure_energy",
+                    "structure_max_3d_diameter",
+                    "structure_mean_pairwise_atom_distance",
+                    "structure_std_pairwise_atom_distance",
+                    "structure_asphericity",
+                    "structure_spherocity",
+                    "structure_principal_moment_ratio",
+                    "structure_radius_of_gyration",
+                ]
+                for field_name in structure_number_field_list:
+                    if not is_number(structure_item.get(field_name)):
+                        logger.print(f"[ERROR] Invalid substrate structure numeric field '{field_name}' for structure: {structure_name}")
+                        return None
+
                 schema_structure_list.append(
                     {
-                        "substrate_structure_name": structure_item.get("structure_name", ""),
-                        "substrate_structure_energy": structure_item.get("structure_energy", ""),
-                        "substrate_structure_max_3d_diameter": structure_item.get("structure_max_3d_diameter", ""),
-                        "substrate_structure_mean_pairwise_atom_distance": structure_item.get("structure_mean_pairwise_atom_distance", ""),
-                        "substrate_structure_std_pairwise_atom_distance": structure_item.get("structure_std_pairwise_atom_distance", ""),
-                        "substrate_structure_asphericity": structure_item.get("structure_asphericity", ""),
-                        "substrate_structure_spherocity": structure_item.get("structure_spherocity", ""),
-                        "substrate_structure_principal_moment_ratio": structure_item.get("structure_principal_moment_ratio", ""),
-                        "substrate_structure_radius_of_gyration": structure_item.get("structure_radius_of_gyration", ""),
+                        "substrate_structure_name": structure_name,
+                        "substrate_structure_energy": structure_item["structure_energy"],
+                        "substrate_structure_max_3d_diameter": structure_item["structure_max_3d_diameter"],
+                        "substrate_structure_mean_pairwise_atom_distance": structure_item["structure_mean_pairwise_atom_distance"],
+                        "substrate_structure_std_pairwise_atom_distance": structure_item["structure_std_pairwise_atom_distance"],
+                        "substrate_structure_asphericity": structure_item["structure_asphericity"],
+                        "substrate_structure_spherocity": structure_item["structure_spherocity"],
+                        "substrate_structure_principal_moment_ratio": structure_item["structure_principal_moment_ratio"],
+                        "substrate_structure_radius_of_gyration": structure_item["structure_radius_of_gyration"],
                     }
                 )
 
             schema_substrate_list.append(
                 {
-                    "substrate_name": item.get("substrate_name", ""),
-                    "substrate_smiles": item.get("smiles", ""),
-                    "substrate_fingerprint_encoding": item.get("fingerprint", ""),
-                    "substrate_atom_count": item.get("num_atoms", ""),
-                    "substrate_molecular_weight": item.get("mol_weight", ""),
-                    "substrate_logp": item.get("logp", ""),
-                    "substrate_tpsa": item.get("tpsa", ""),
-                    "substrate_heavy_atom_count": item.get("heavy_atom_count", ""),
-                    "substrate_hbond_donor_count": item.get("hbond_donor_count", ""),
-                    "substrate_hbond_acceptor_count": item.get("hbond_acceptor_count", ""),
-                    "substrate_rotatable_bond_count": item.get("rotatable_bond_count", ""),
-                    "substrate_molar_refractivity": item.get("molar_refractivity", ""),
+                    "substrate_name": substrate_name,
+                    "substrate_smiles": smiles,
+                    "substrate_fingerprint_encoding": fingerprint,
+                    "substrate_atom_count": item["num_atoms"],
+                    "substrate_molecular_weight": item["mol_weight"],
+                    "substrate_logp": item["logp"],
+                    "substrate_tpsa": item["tpsa"],
+                    "substrate_heavy_atom_count": item["heavy_atom_count"],
+                    "substrate_hbond_donor_count": item["hbond_donor_count"],
+                    "substrate_hbond_acceptor_count": item["hbond_acceptor_count"],
+                    "substrate_rotatable_bond_count": item["rotatable_bond_count"],
+                    "substrate_molar_refractivity": item["molar_refractivity"],
                     "substrate_possible_structures": schema_structure_list,
                 }
             )
@@ -1187,6 +1272,6 @@ def postprocess_substrate_report_to_schema(
             "substrates": schema_substrate_list,
         }
 
-    except Exception:
-        logger.print("[ERROR] Failed to postprocess substrate report to schema.")
+    except Exception as e:
+        logger.print(f"[ERROR] Failed to postprocess substrate report to schema. Reason: {e}")
         return None

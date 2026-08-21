@@ -56,8 +56,8 @@ def get_smiles_from_substrate_name(substrate_name: str, logger: Logger, session:
         logger.print(f"[WARNING] Failed to obtain SMILES for substrate: {cleaned_name}")
         return ""
 
-    except Exception:
-        logger.print(f"[ERROR] Unexpected error when resolving substrate: {substrate_name}")
+    except Exception as e:
+        logger.print(f"[ERROR] Unexpected error when resolving substrate: {substrate_name}. Reason: {e}")
         return None
 
 def get_substrate_dict_list_from_input(substrate_names: str, logger: Logger) -> List[Dict[str, str]] | None:
@@ -97,8 +97,8 @@ def get_substrate_dict_list_from_input(substrate_names: str, logger: Logger) -> 
 
         return result
 
-    except Exception:
-        logger.print("[ERROR] Failed to parse substrate_names.")
+    except Exception as e:
+        logger.print(f"[ERROR] Failed to parse substrate_names. Reason: {e}")
         return None
 
 def get_completed_smiles_list(substrate_list: List[Dict[str, str]],logger: Logger,session: Optional[requests.Session] = None, max_synonyms=20) -> List[Dict[str, str]] | None:
@@ -122,15 +122,19 @@ def get_completed_smiles_list(substrate_list: List[Dict[str, str]],logger: Logge
             smiles = get_smiles_from_substrate_name(name, logger, session=session, max_pubchem_synonyms_to_retry_chebi=max_synonyms)
 
             if smiles is None:
-                logger.print("[ERROR] Failed to fetch SMILES.")
+                logger.print(f"[ERROR] Failed to fetch SMILES for substrate: {name}")
                 return None
 
-            item["smiles"] = smiles if smiles else ""
+            if not smiles:
+                logger.print(f"[ERROR] Failed to obtain SMILES for substrate: {name}")
+                return None
+
+            item["smiles"] = smiles
 
         return substrate_list
 
-    except Exception:
-        logger.print("[ERROR] Failed to complete SMILES list.")
+    except Exception as e:
+        logger.print(f"[ERROR] Failed to complete SMILES list. Reason: {e}")
         return None
 
 def get_substrate_feature_list(substrate_list: List[Dict[str, str]],logger: Logger,fp_radius: int = 2, n_bits: int = 512,num_confs: int = 5, prune_rms: float = 0.5) -> List[Dict[str, Any]] | None:
@@ -146,47 +150,56 @@ def get_substrate_feature_list(substrate_list: List[Dict[str, str]],logger: Logg
             name = item.get("substrate_name", "")
             smiles = item.get("smiles", "")
 
+            if not isinstance(name, str) or not name.strip():
+                logger.print("[ERROR] Missing substrate_name.")
+                return None
+
+            if not isinstance(smiles, str) or not smiles.strip():
+                logger.print(f"[ERROR] Missing SMILES for substrate: {name}")
+                return None
+
             out: Dict[str, Any] = {
                 "substrate_name": name,
                 "smiles": smiles,
-                "fingerprint": "",
-                "num_atoms": "",
-                "mol_weight": "",
-                "logp": "",
-                "tpsa": "",
-                "heavy_atom_count": "",
-                "hbond_donor_count": "",
-                "hbond_acceptor_count": "",
-                "rotatable_bond_count": "",
-                "molar_refractivity": "",
+                "fingerprint": [],
+                "num_atoms": 0,
+                "mol_weight": 0.0,
+                "logp": 0.0,
+                "tpsa": 0.0,
+                "heavy_atom_count": 0,
+                "hbond_donor_count": 0,
+                "hbond_acceptor_count": 0,
+                "rotatable_bond_count": 0,
+                "molar_refractivity": 0.0,
                 "structures": []
             }
 
-            if not smiles:
-                result.append(out)
-                continue
-
             mol_2d = get_mol_from_smiles(smiles, logger)
             if mol_2d is None:
-                result.append(out)
-                continue
+                logger.print(f"[ERROR] Failed to generate Mol(2D) for substrate: {name}")
+                return None
 
             fp = get_fingerprint_from_mol_2d(mol_2d, logger, radius=fp_radius,n_bits=n_bits)
             desc = get_2d_descriptor_dict_from_mol_2d(mol_2d, logger)
 
-            if fp is not None:
-                out["fingerprint"] = fp
+            if fp is None:
+                logger.print(f"[ERROR] Failed to generate fingerprint for substrate: {name}")
+                return None
 
-            if desc is not None:
-                out["num_atoms"] = desc.get("substrate_num_atoms", "")
-                out["mol_weight"] = desc.get("substrate_molecular_weight", "")
-                out["logp"] = desc.get("substrate_mol_logp", "")
-                out["tpsa"] = desc.get("substrate_tpsa", "")
-                out["heavy_atom_count"] = desc.get("substrate_num_heavy_atoms", "")
-                out["hbond_donor_count"] = desc.get("substrate_hbond_donor_count", "")
-                out["hbond_acceptor_count"] = desc.get("substrate_hbond_acceptor_count", "")
-                out["rotatable_bond_count"] = desc.get("substrate_rotatable_bond_count", "")
-                out["molar_refractivity"] = desc.get("substrate_molar_refractivity", "")
+            if desc is None:
+                logger.print(f"[ERROR] Failed to generate 2D descriptors for substrate: {name}")
+                return None
+
+            out["fingerprint"] = fp
+            out["num_atoms"] = desc.get("substrate_num_atoms")
+            out["mol_weight"] = desc.get("substrate_molecular_weight")
+            out["logp"] = desc.get("substrate_mol_logp")
+            out["tpsa"] = desc.get("substrate_tpsa")
+            out["heavy_atom_count"] = desc.get("substrate_num_heavy_atoms")
+            out["hbond_donor_count"] = desc.get("substrate_hbond_donor_count")
+            out["hbond_acceptor_count"] = desc.get("substrate_hbond_acceptor_count")
+            out["rotatable_bond_count"] = desc.get("substrate_rotatable_bond_count")
+            out["molar_refractivity"] = desc.get("substrate_molar_refractivity")
 
             mol_h = get_mol_h_from_mol_2d(mol_2d, logger)
             if mol_h is None:
@@ -211,21 +224,20 @@ def get_substrate_feature_list(substrate_list: List[Dict[str, str]],logger: Logg
 
                 structure_name = f"{name}_{i}"
 
+                if energy is None or descriptor_3d is None:
+                    logger.print(f"[WARNING] Skipping incomplete substrate structure: {structure_name}")
+                    continue
+
                 structure_dict = {
                     "structure_name": structure_name,
-                    "structure_energy": energy if energy is not None else "",
+                    "structure_energy": energy,
                     "structure_mol": mol_3d
                 }
-                if descriptor_3d is not None:
-                    structure_dict.update(descriptor_3d)
+                structure_dict.update(descriptor_3d)
 
                 structures.append(structure_dict)
 
-            structures_with_energy = [x for x in structures if x["structure_energy"] != ""]
-            structures_without_energy = [x for x in structures if x["structure_energy"] == ""]
-
-            structures_with_energy.sort(key=lambda x: x["structure_energy"])
-            structures = structures_with_energy + structures_without_energy
+            structures.sort(key=lambda x: x["structure_energy"])
 
             for i, structure_dict in enumerate(structures, start=1):
                 structure_dict["structure_name"] = f"{name}_{i}"
@@ -235,8 +247,8 @@ def get_substrate_feature_list(substrate_list: List[Dict[str, str]],logger: Logg
 
         return result
 
-    except Exception:
-        logger.print("[ERROR] Failed to generate substrate feature list.")
+    except Exception as e:
+        logger.print(f"[ERROR] Failed to generate substrate feature list. Reason: {e}")
         return None
 
 def generate_substrate_report(substrate_feature_list: List[Dict[str, Any]], logger: Logger) -> Dict[str, Any] | None:
@@ -249,20 +261,64 @@ def generate_substrate_report(substrate_feature_list: List[Dict[str, Any]], logg
         cleaned_list = []
 
         for item in substrate_feature_list:
+            if not isinstance(item, dict):
+                logger.print("[ERROR] Invalid substrate feature entry.")
+                return None
+
+            required_substrate_fields = [
+                "substrate_name",
+                "smiles",
+                "fingerprint",
+                "num_atoms",
+                "mol_weight",
+                "logp",
+                "tpsa",
+                "heavy_atom_count",
+                "hbond_donor_count",
+                "hbond_acceptor_count",
+                "rotatable_bond_count",
+                "molar_refractivity",
+                "structures",
+            ]
+            for field_name in required_substrate_fields:
+                if field_name not in item:
+                    logger.print(f"[ERROR] Missing substrate feature field: {field_name}")
+                    return None
+
             new_item = dict(item)
 
             new_structures = []
             for s in item.get("structures", []):
+                if not isinstance(s, dict):
+                    logger.print("[ERROR] Invalid substrate structure entry.")
+                    return None
+
+                required_structure_fields = [
+                    "structure_name",
+                    "structure_energy",
+                    "structure_max_3d_diameter",
+                    "structure_mean_pairwise_atom_distance",
+                    "structure_std_pairwise_atom_distance",
+                    "structure_asphericity",
+                    "structure_spherocity",
+                    "structure_principal_moment_ratio",
+                    "structure_radius_of_gyration",
+                ]
+                for field_name in required_structure_fields:
+                    if field_name not in s:
+                        logger.print(f"[ERROR] Missing substrate structure field: {field_name}")
+                        return None
+
                 new_structures.append({
-                    "structure_name": s.get("structure_name"),
-                    "structure_energy": s.get("structure_energy"),
-                    "structure_max_3d_diameter": s.get("structure_max_3d_diameter", ""),
-                    "structure_mean_pairwise_atom_distance": s.get("structure_mean_pairwise_atom_distance", ""),
-                    "structure_std_pairwise_atom_distance": s.get("structure_std_pairwise_atom_distance", ""),
-                    "structure_asphericity": s.get("structure_asphericity", ""),
-                    "structure_spherocity": s.get("structure_spherocity", ""),
-                    "structure_principal_moment_ratio": s.get("structure_principal_moment_ratio", ""),
-                    "structure_radius_of_gyration": s.get("structure_radius_of_gyration", ""),
+                    "structure_name": s["structure_name"],
+                    "structure_energy": s["structure_energy"],
+                    "structure_max_3d_diameter": s["structure_max_3d_diameter"],
+                    "structure_mean_pairwise_atom_distance": s["structure_mean_pairwise_atom_distance"],
+                    "structure_std_pairwise_atom_distance": s["structure_std_pairwise_atom_distance"],
+                    "structure_asphericity": s["structure_asphericity"],
+                    "structure_spherocity": s["structure_spherocity"],
+                    "structure_principal_moment_ratio": s["structure_principal_moment_ratio"],
+                    "structure_radius_of_gyration": s["structure_radius_of_gyration"],
                 })
 
             new_item["structures"] = new_structures
@@ -275,6 +331,6 @@ def generate_substrate_report(substrate_feature_list: List[Dict[str, Any]], logg
 
         return postprocess_substrate_report_to_schema(raw_report, logger)
 
-    except Exception:
-        logger.print("[ERROR] Failed to generate substrate report.")
+    except Exception as e:
+        logger.print(f"[ERROR] Failed to generate substrate report. Reason: {e}")
         return None
