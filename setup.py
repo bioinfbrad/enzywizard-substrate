@@ -12,7 +12,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="enzywizard-substrate",
-    version=__version__,                      # currently "1.0.1"
+    version=__version__,
     author="bioinfbrad",
     description=(
         "Process small-molecule substrates from names or SMILES strings, generate "

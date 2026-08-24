@@ -33,3 +33,4 @@ venv/
 *.conda
 *.tar.bz2
 
+src/*.egg-info/
