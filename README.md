@@ -232,6 +232,10 @@ etc.
    - {substrate_name}_{index}.sdf
      - Generated 3D substrate conformation in SDF format. `{index}` is the
        generated conformer index for that substrate.
+     - The structure filename and the corresponding report field
+       `substrate_structure_name` are cleaned for filesystem compatibility;
+       characters such as commas and spaces are converted to underscores. The
+       original resolved name is retained in the report's `substrate_name` field.
 
 3. A log file
    - log.txt

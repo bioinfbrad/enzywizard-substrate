@@ -1,8 +1,10 @@
 from __future__ import annotations
+from pathlib import Path
 from ..utils.logging_utils import Logger
 from typing import Optional, List, Dict, Set,Any
 import requests
 from ..utils.substrate_utils import clean_compound_name, build_retry_session, chebi_search_exact, choose_best_chebi_smiles, pubchem_name_to_cid,pubchem_cid_to_smiles, pubchem_cid_to_synonyms, expand_synonyms_with_brackets, is_valid_smiles, get_mol_from_smiles, get_mol_h_from_mol_2d, get_fingerprint_from_mol_2d, get_minimized_mol_3d_list_from_mol_3d_list, get_mol_3d_list_from_mol_h, get_uff_energy_from_mol_3d ,get_2d_descriptor_dict_from_mol_2d, get_3d_descriptor_dict_from_mol_3d, postprocess_substrate_report_to_schema
+from ..utils.common_utils import get_clean_filename, get_optimized_filename
 
 
 def get_smiles_from_substrate_name(substrate_name: str, logger: Logger, session: Optional[requests.Session] = None, timeout: int = 15, max_pubchem_synonyms_to_retry_chebi: int = 20) -> str | None:
@@ -310,7 +312,11 @@ def generate_substrate_report(substrate_feature_list: List[Dict[str, Any]], logg
                         return None
 
                 new_structures.append({
-                    "structure_name": s["structure_name"],
+                    "structure_name": Path(
+                        get_optimized_filename(
+                            f"{get_clean_filename(s['structure_name'])}.sdf"
+                        )
+                    ).stem,
                     "structure_energy": s["structure_energy"],
                     "structure_max_3d_diameter": s["structure_max_3d_diameter"],
                     "structure_mean_pairwise_atom_distance": s["structure_mean_pairwise_atom_distance"],
